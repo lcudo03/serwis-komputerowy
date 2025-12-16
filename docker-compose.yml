@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    container_name: serwis-db
+    environment:
+      POSTGRES_DB: serwis
+      POSTGRES_USER: serwis
+      POSTGRES_PASSWORD: serwis
+    ports:
+      - "5432:5432"
+    volumes:
+      - serwis_pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: serwis-api
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: serwis
+      DB_USER: serwis
+      DB_PASSWORD: serwis
+    ports:
+      - "8080:8080"
+
+volumes:
+  serwis_pgdata:
