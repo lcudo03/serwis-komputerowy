@@ -27,10 +27,10 @@ public class ZamowienieService {
 
   @Transactional
   public Zamowienie create(ZamowienieCreateRequest req) {
-    Zlecenie zlecenie = zlecenieRepo.findById(req.zlecenieId())
-        .orElseThrow(() -> new NotFoundException("Nie znaleziono zlecenia id=" + req.zlecenieId()));
-    DoZamowienia item = doRepo.findById(req.doZamowieniaId())
-        .orElseThrow(() -> new NotFoundException("Nie znaleziono pozycji do_zamowienia id=" + req.doZamowieniaId()));
+    Zlecenie zlecenie = zlecenieRepo.findById(req.zlecenie())
+        .orElseThrow(() -> new NotFoundException("Nie znaleziono zlecenia id=" + req.zlecenie()));
+    DoZamowienia item = doRepo.findById(req.zamowionyPrzedmiot())
+        .orElseThrow(() -> new NotFoundException("Nie znaleziono pozycji do_zamowienia id=" + req.zamowionyPrzedmiot()));
 
     Zamowienie zam = new Zamowienie();
     zam.setZlecenie(zlecenie);

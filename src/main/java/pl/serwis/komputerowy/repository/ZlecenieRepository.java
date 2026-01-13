@@ -24,4 +24,29 @@ public interface ZlecenieRepository extends JpaRepository<Zlecenie, Long> {
                         @Param("pracownikId") Long pracownikId,
                         @Param("from") LocalDate from,
                         @Param("to") LocalDate to);
+
+  /**
+   * "Aktywne" zlecenia na potrzeby dashboardu: status 'Przyjęte' lub 'W realizacji'.
+   */
+  @Query(value = """
+      SELECT z.*
+      FROM zlecenia z
+      JOIN status s ON z.status = s.id_statusu
+      WHERE s.status IN ('Przyjęte', 'W realizacji')
+      ORDER BY z.data DESC, z.id_zlecenia DESC
+      """, nativeQuery = true)
+  List<Zlecenie> findActiveForDashboard();
+
+  /**
+   * Ostatnio przyjęty model: najnowsze zlecenie ze statusem 'Przyjęte'.
+   */
+  @Query(value = """
+      SELECT z.*
+      FROM zlecenia z
+      JOIN status s ON z.status = s.id_statusu
+      WHERE s.status = 'Przyjęte'
+      ORDER BY z.data DESC, z.id_zlecenia DESC
+      LIMIT 1
+      """, nativeQuery = true)
+  List<Zlecenie> findLatestAcceptedForDashboard();
 }

@@ -11,6 +11,7 @@ import pl.serwis.komputerowy.web.dto.*;
 
 @RestController
 @RequestMapping("/api/zlecenia")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS})
 public class ZlecenieController {
 
   private final ZlecenieService zlecenieService;
@@ -48,7 +49,7 @@ public class ZlecenieController {
   // UC5 - Zmiana statusu zlecenia
   @PatchMapping("/{id}/status")
   public ZlecenieResponse changeStatus(@PathVariable long id, @Valid @RequestBody ChangeStatusRequest req) {
-    return map(zlecenieService.changeStatus(id, req.statusId()));
+    return map(zlecenieService.changeStatus(id, req.status(), req.postepNaprawy()));
   }
 
   private static ZlecenieResponse map(Zlecenie z) {

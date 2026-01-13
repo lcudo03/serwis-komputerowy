@@ -2,4 +2,8 @@ package pl.serwis.komputerowy.web.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record ChangeStatusRequest(@NotNull Long statusId) {}
+/** Request dopasowany do frontendu (static/script.js). */
+public record ChangeStatusRequest(
+    @NotNull Long status,
+    String postepNaprawy
+) {}

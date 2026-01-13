@@ -20,6 +20,17 @@ public class RaportRepository {
   public record RaportKlientaRow(String imie, String nazwisko, String urzadzenie,
                                  String modelUrzadzenia, String status, Date data, String pracownik) {}
 
+  /**
+   * Podsumowanie do eksportu CSV: zlecenia per pracownik z rozbiciem na statusy.
+   */
+  public record PracownikZleceniaSummary(Long pracownikId, String pracownik,
+                                        long wszystkie,
+                                        long przyjete,
+                                        long wRealizacji,
+                                        long zakonczone,
+                                        long wydane,
+                                        long aktywne) {}
+
   public List<PracownikStatusCount> raport1() {
     @SuppressWarnings("unchecked")
     List<Object[]> rows = em.createNativeQuery("""
@@ -99,6 +110,44 @@ public class RaportRepository {
           (String) r[4],
           (Date) r[5],
           (String) r[6]
+      ));
+    }
+    return out;
+  }
+
+  /**
+   * Zestawienie per pracownik do raportu CSV (wszystkie + rozbicie na statusy).
+   * Uwzględnia także pracowników bez zleceń.
+   */
+  public List<PracownikZleceniaSummary> pracownikZleceniaSummary() {
+    @SuppressWarnings("unchecked")
+    List<Object[]> rows = em.createNativeQuery("""
+        SELECT p.id_pracownika AS pracownikId,
+               p.imie AS pracownik,
+               COUNT(z.id_zlecenia) AS wszystkie,
+               COALESCE(SUM(CASE WHEN s.status = 'Przyjęte' THEN 1 ELSE 0 END), 0) AS przyjete,
+               COALESCE(SUM(CASE WHEN s.status = 'W realizacji' THEN 1 ELSE 0 END), 0) AS wRealizacji,
+               COALESCE(SUM(CASE WHEN s.status = 'Zakończone' THEN 1 ELSE 0 END), 0) AS zakonczone,
+               COALESCE(SUM(CASE WHEN s.status = 'Wydane klientowi' THEN 1 ELSE 0 END), 0) AS wydane,
+               COALESCE(SUM(CASE WHEN s.status IN ('Przyjęte','W realizacji') THEN 1 ELSE 0 END), 0) AS aktywne
+        FROM pracownik p
+        LEFT JOIN zlecenia z ON z.pracownik = p.id_pracownika
+        LEFT JOIN status s ON z.status = s.id_statusu
+        GROUP BY p.id_pracownika, p.imie
+        ORDER BY p.id_pracownika
+        """).getResultList();
+
+    List<PracownikZleceniaSummary> out = new ArrayList<>();
+    for (Object[] r : rows) {
+      out.add(new PracownikZleceniaSummary(
+          r[0] == null ? null : ((Number) r[0]).longValue(),
+          (String) r[1],
+          ((Number) r[2]).longValue(),
+          ((Number) r[3]).longValue(),
+          ((Number) r[4]).longValue(),
+          ((Number) r[5]).longValue(),
+          ((Number) r[6]).longValue(),
+          ((Number) r[7]).longValue()
       ));
     }
     return out;

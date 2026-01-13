@@ -39,6 +39,31 @@ public class RaportService {
     return raportRepository.raport3(imie, nazwisko);
   }
 
+  @Transactional(readOnly = true)
+  public List<RaportRepository.PracownikZleceniaSummary> pracownikZleceniaSummary() {
+    return raportRepository.pracownikZleceniaSummary();
+  }
+
+  /**
+   * CSV: zestawienie per pracownik (wszystkie + rozbicie na statusy + aktywne).
+   */
+  public byte[] exportCsvPracownikZlecenia(List<RaportRepository.PracownikZleceniaSummary> rows) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("PracownikId,Pracownik,Wszystkie,Przyjete,W_realizacji,Zakonczone,Wydane,Aktywne\n");
+    for (var r : rows) {
+      sb.append(r.pracownikId() == null ? "" : r.pracownikId()).append(',')
+        .append(escape(r.pracownik())).append(',')
+        .append(r.wszystkie()).append(',')
+        .append(r.przyjete()).append(',')
+        .append(r.wRealizacji()).append(',')
+        .append(r.zakonczone()).append(',')
+        .append(r.wydane()).append(',')
+        .append(r.aktywne())
+        .append('\n');
+    }
+    return sb.toString().getBytes(StandardCharsets.UTF_8);
+  }
+
   public byte[] exportCsvRaport1(List<RaportRepository.PracownikStatusCount> rows) {
     StringBuilder sb = new StringBuilder();
     sb.append("Pracownik,Status,Liczba_zleceń\n");
