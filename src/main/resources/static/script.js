@@ -144,9 +144,11 @@ window.otworzModal = (id) => new bootstrap.Modal(document.getElementById(id)).sh
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formKlient').onsubmit = async (e) => {
         e.preventDefault();
+        const formatuj = (tekst) => tekst.charAt(0).toUpperCase() + tekst.slice(1).toLowerCase();
+
         const data = { 
-            imie: document.getElementById('f-imie').value, 
-            nazwisko: document.getElementById('f-nazwisko').value, 
+            imie: formatuj(document.getElementById('f-imie').value), 
+            nazwisko: formatuj(document.getElementById('f-nazwisko').value), 
             nrTelefonu: document.getElementById('f-telefon').value, 
             adres: document.getElementById('f-adres').value 
         };
