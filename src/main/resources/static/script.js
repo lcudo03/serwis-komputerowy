@@ -203,3 +203,31 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     };
 });
+
+window.szybkieDodaniePrzedmiotu = function() {
+    const sekcja = document.getElementById('sekcja-szybkie-dodawanie');
+    sekcja.classList.toggle('d-none');
+};
+
+window.zapiszSzybkiPrzedmiot = async function() {
+    const nazwa = document.getElementById('nowy-przedmiot-nazwa').value.trim();
+    if (!nazwa) return alert("Wpisz nazwę przedmiotu!");
+
+    const res = await fetch(`${API_URL}/do-zamowienia`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ zamowionyPrzedmiot: nazwa })
+    });
+
+    if (res.ok) {
+        document.getElementById('nowy-przedmiot-nazwa').value = "";
+        document.getElementById('sekcja-szybkie-dodawanie').classList.add('d-none');
+        
+        const dz = await fetchSafe(`${API_URL}/do-zamowienia`);
+        document.getElementById('f-zam-przedmiot').innerHTML = dz.map(i => `<option value="${i.id}">${i.zamowionyPrzedmiot}</option>`).join('');
+        
+        alert("Dodano: " + nazwa);
+    } else {
+        alert("Błąd podczas dodawania przedmiotu.");
+    }
+};
